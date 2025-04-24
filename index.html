@@ -190,12 +190,12 @@
         }
 
         // 3) 나머지 남은 층 순서대로 채우기 (5,3,2,1층)
-        ['5층','3층','2층','1층'].forEach(f => {
+                        // 3) 나머지 남은 층 순서대로 채우기 (우선순위: 5 > 3 > 1 > 2 > 4)
+        ['5층','3층','1층','2층','4층'].forEach(f => {
           if (!map[f] && rem.length) {
             map[f] = rem.shift();
           }
         });
-
         const floors = ['5층','4층','3층','2층','1층'];
         let out = floors.map(f => `${f} : ${map[f].display}`).join('\n');
         if (reductions.length) out += '\n\n※ 감산 적용:\n' + reductions.join(', ');
