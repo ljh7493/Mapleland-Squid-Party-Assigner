@@ -6,55 +6,48 @@
   <title>🦑 원양어선 자리 배정기</title>
   <style>
     body { margin:0; padding:24px; font-family:'Malgun Gothic',sans-serif; background:#001f33; color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; box-sizing:border-box; }
-    h1 { margin-bottom:16px; font-size:1.5rem; text-align:center; }
-    textarea { width:100%; max-width:700px; height:210px; margin-bottom:16px; padding:12px; font-size:14px; border:none; border-radius:12px; resize:vertical; box-shadow:0 2px 8px rgba(0,0,0,0.2); background:#002a4d; color:#eee; }
+    h1 { margin-bottom:8px; font-size:1.5rem; text-align:center; }
+    .tooltip { position:relative; display:inline-block; margin-bottom:16px; cursor:help; }
+    .tooltip .tiptext {
+      visibility:hidden; width:340px; background:#222; color:#fff; padding:12px; border-radius:6px;
+      position:absolute; z-index:1; top:100%; left:50%; transform:translateX(-40%) translateY(8px);
+      opacity:0; transition:opacity 0.3s; font-size:13px; line-height:1.4; text-align:left;
+    }
+    .tooltip:hover .tiptext { visibility:visible; opacity:1; }
+    textarea {
+      width:100%; max-width:700px; height:210px; margin-bottom:16px;
+      padding:12px; font-size:14px; border:none; border-radius:12px; resize:vertical;
+      box-shadow:0 2px 8px rgba(0,0,0,0.2); background:#002a4d; color:#eee;
+    }
     .button-group { display:flex; gap:12px; margin-bottom:12px; width:100%; max-width:700px; }
-    button { padding:10px 18px; font-size:14px; border:none; border-radius:8px; cursor:pointer; background:#004aad; color:#fff; transition:0.2s; }
+    button {
+      padding:10px 18px; font-size:14px; border:none; border-radius:8px;
+      cursor:pointer; background:#004aad; color:#fff; transition:0.2s;
+    }
     button:disabled { background:#555!important; cursor:not-allowed; }
     button:hover:enabled { background:#003080; }
     @media(max-width:600px){ .button-group{justify-content:center;} }
-    .tooltip { position:relative; display:inline-block; margin-left:8px; cursor:help; }
-    .tooltip .tiptext { 
-      visibility:hidden;
-      width:340px;
-      background:#222;
-      color:#fff;
-      padding:12px;
-      border-radius:6px;
-      position:absolute;
-      z-index:1;
-      top:100%;
-      left:50%;
-      transform:translateX(-40%) translateY(8px);
-      opacity:0;
-      transition:opacity 0.3s;
-      font-size:13px;
-      line-height:1.4;
-      text-align:left;
-    }
-    .tooltip:hover .tiptext { visibility:visible; opacity:1; }
   </style>
 </head>
 <body>
-  <h1>
-    <span class="tooltip">🦑 원양어선 자리 배정기
-      <div class="tiptext">
-        <strong>배정 기준 요약</strong><br>
-        • 숫자 길이로 구분: 2~3자리→레벨, 4자리 이상→공격력, 1자리→무시<br>
-        • 공격력 뒤 “메용/메” 표시 시 5% 감산<br>
-        • 레벨 97미만일 땐 레벨차 ×1% 추가 감산<br>
-        • 공격력 비교는 레인저 기준 보정값 적용:<br>
-          – 나이트로드(+550), 허밋(+500), 저격수·신궁(–150)<br>
-        • 특정 직업 고정배치:<br>
-          – 시프마스터, 크루세이더, 용기사는 우선 배치 위치 지정<br>
-        • 선장은 레벨·직업·공격력 누락 시에도 5층 확정<br>
-        ※ 절대적인 기준이 아닌 단순 참고용입니다.<br>
-        결과에 이상이 있는 경우 적절히 판단하여 배정하세요.
-      </div>
-    </span>
-  </h1>
+  <h1>🦑 원양어선 자리 배정기</h1>
+  <div class="tooltip">
+    <div class="tiptext">
+      <strong>배정 기준 요약</strong><br>
+      • 숫자 길이로 구분: 2~3자리→레벨, 4자리 이상→공격력, 1자리→무시<br>
+      • 공격력 뒤 “메용/메” 표시 시 5% 감산<br>
+      • 레벨 97미만 시 레벨차 ×1% 추가 감산<br>
+      • 공격력 비교 시 레인저 기준 보정값 적용:<br>
+        – 나이트로드(+550), 허밋(+500), 저격수·신궁(−150)<br>
+      • 특정 직업 우선 배치:<br>
+        – 시프마스터는 4층 고정<br>
+        – 크루세이더·용기사는 한 명이면 4층, 두 명 이상이면 1층·4층 배치<br>
+      • 선장(1번)은 정보 누락 시에도 5층 확정 배치<br>
+      <br>※ 절대적인 기준이 아닌 단순 참고용입니다.<br>결과 이상 시 적절히 판단하여 배정하세요.
+    </div>
+  </div>
 
-  <textarea id="input" placeholder="구인글을 붙여넣어주세요. 오류시 '/' 혹은 공백 확인"></textarea>
+  <textarea id="input" placeholder="구인글을 붙여넣어주세요. 오류 시 '/' 또는 공백 확인"></textarea>
   <div class="button-group">
     <button id="btn-assign">배정하기</button>
     <button id="btn-clear">지우기</button>
@@ -63,102 +56,155 @@
   <textarea id="output" readonly placeholder="배정 결과가 여기에 표시됩니다."></textarea>
 
   <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const jobMap = { 보마:'보우마스터', 신궁:'신궁', 보우마스터:'보우마스터', 렌:'레인저', 렌져:'레인저', 레인져:'레인저', 렝거:'레인저', 레인저:'레인저', 저격:'저격수', 저수:'저격수', 저격수:'저격수', 허밋:'허밋', 표도:'허밋', 허:'허밋', 나로:'나이트로드', 나이트로드:'나이트로드', 용:'용기사', 용기사:'용기사', 크루:'크루세이더', 크루세이더:'크루세이더', 시프:'시프마스터', 시프마스터:'시프마스터', 시마:'시프마스터', 다크나이트:'다크나이트', 닼나:'다크나이트', 혀로:'히어로', 히어로:'히어로', 섀도어:'섀도어' };
-    const conv = { 나이트로드:550, 허밋:500, 저격수:-150, 신궁:-150 };
+    document.addEventListener('DOMContentLoaded', function() {
+      const inp = document.getElementById('input');
+      const out = document.getElementById('output');
+      const btnAssign = document.getElementById('btn-assign');
+      const btnClear = document.getElementById('btn-clear');
+      const btnCopy = document.getElementById('btn-copy');
 
-    function parseLine(line) {
-      let txt = line.replace(/^\d+\s*(?:\.\s*)?/, '').replace(/[\[\]():]/g,'/').trim();
-      const parts = txt.split(/[\/\s]+/).filter(Boolean);
-      let lvlRaw='', atkRaw='', buffTag='', jobRaw='', nick=[];
-      for (let tk of parts) {
-        // 수치 뒤 메업* 패턴 무시
-        let mU = tk.match(/^(\d{4,}\+*)(?:메업m?|메업M?|메소업m?|메소업M?)$/i);
-        if (mU && !atkRaw) { atkRaw = mU[1]; continue; }
-        // 단독 '메용'
-        if (/^메용$/i.test(tk)) { buffTag='메용'; continue; }
-        // '(메용)' 접미사
-        let mMe = tk.match(/^(\d{4,}\+*)\(메용\)$/i);
-        if (mMe && !atkRaw) { atkRaw=mMe[1]; buffTag='메용'; continue; }
-        // 레벨
-        if (!lvlRaw && /^\d{2,3}n?$/i.test(tk)) { lvlRaw=tk; continue; }
-        // 공격력
-        if (!atkRaw && /^\d{4,}\+*$/.test(tk)) { atkRaw=tk; continue; }
-        // 직업
-        const norm = jobMap[tk.toLowerCase()]; if (!jobRaw && norm) { jobRaw=norm; continue; }
-        // 기타 메업 등 무시
-        if (/^메업/i.test(tk) || /^메소업/i.test(tk)) continue;
-        nick.push(tk);
-      }
-      if (!atkRaw && ['보우마스터','신궁'].includes(jobRaw)) atkRaw='9999+';
-      if (!lvlRaw) lvlRaw='?'; if (!jobRaw) jobRaw='보우마스터';
-      if (!nick.length || !atkRaw) throw new Error('필수 필드 누락');
-      return { nick:nick.join(' '), lvlRaw, jobRaw, atkRaw, buffTag };
-    }
-
-    function processInput(text) {
-      const lines = text.split('\n').map(l => l.trim());
-      let players = [], errors = [], reductions = [], noReduce = [];
-      for (let line of lines) {
-        if (!/^\d+/.test(line)) continue;
-        const idx = parseInt(line, 10);
-        let useLine = line;
-        if (idx === 1 && !line.includes('/')) {
-          const lvlM = line.match(/\b(\d{2,3}n?)\b/);
-          const lvlR = lvlM ? lvlM[1] : '?';
-          const atkM = line.match(/(\d{4,}\+*)/);
-          const atkR = atkM ? atkM[1] : '';
-          const jobM = line.match(/보마|신궁|렌져?|렌저|레인저|저격수|허밋/i);
-          const jobR = jobM ? jobMap[jobM[0].toLowerCase()] : '보우마스터';
-          useLine = `1. 선장/${lvlR}/${jobR}/${atkR}`;
+      btnAssign.addEventListener('click', function() {
+        out.value = processInput(inp.value);
+        btnCopy.disabled = !/\[복사결과\]/.test(out.value);
+      });
+      btnClear.addEventListener('click', function() {
+        inp.value = '';
+        out.value = '';
+        btnCopy.disabled = true;
+      });
+      btnCopy.addEventListener('click', function() {
+        const m = out.value.match(/\[복사결과\]\n([\s\S]*)$/);
+        if (m) {
+          const text = m[1].trim();
+          navigator.clipboard.writeText(text).then(function() {
+            alert('복사되었습니다:\n' + text);
+          });
         }
-        try {
-          const { nick, lvlRaw, jobRaw, atkRaw, buffTag } = parseLine(useLine);
-          const rawAtk = parseInt(atkRaw, 10);
-          let lvl = parseInt(lvlRaw) || 97;
-          let unknown = false;
-          if (lvlRaw === '?' || /n$/i.test(lvlRaw)) { unknown = true; lvl = 97; noReduce.push(nick + '(레벨미확인)'); }
-          if (!unknown && lvl < 92) throw new Error();
-          let adj = rawAtk;
-          if (buffTag === '메용') { const bef = adj; adj = Math.round(adj / 1.05); reductions.push(`${nick}/${bef}→${adj}(메용 감산)`); }
-          if (!unknown && lvl < 97) { const bef = adj; const pct = (97 - lvl) / 100; adj = Math.round(adj * (1 - pct)); reductions.push(`${nick}/${bef}→${adj}(레벨${Math.round(pct * 100)}%)`); }
-          players.push({ nick, lvl, job: jobRaw, adj, comp: adj + (conv[jobRaw] || 0), display: `${nick}/${lvlRaw}/${jobRaw}/${atkRaw}` });
-        } catch (e) {
-          errors.push(line);
-        }
-      }
-      if (players.length < 5) {
-        return '배정 실패\n※ 파싱 실패 라인:\n' + errors.join('\n');
-      }
-      // 파티원 배치
-      players.sort((a, b) => b.comp - a.comp);
-      const map = {};
-      let remaining = [...players];
-      // 시프마스터 4층 고정
-      const shif = remaining.find(p => p.job === '시프마스터');
-      if (shif) { map['4층'] = shif; remaining = remaining.filter(p => p !== shif); }
-      // 크루세이더 vs 용기사
-      const crs = remaining.filter(p => ['크루세이더', '용기사'].includes(p.job));
-      crs.sort((a, b) => b.comp - a.comp);
-      if (crs[0]) { map['1층'] = crs[0]; remaining = remaining.filter(p => p !== crs[0]); }
-      if (crs[1]) { map['3층'] = crs[1]; remaining = remaining.filter(p => p !== crs[1]); }
-      // 나머지 배치
-      const assignOrder = ['5층','3층','1층','2층','4층'];
-      for (let floor of assignOrder) { if (!map[floor] && remaining.length) map[floor] = remaining.shift(); }
-      const disp = ['5층','4층','3층','2층','1층'];
-      let outText = disp.map(f => `${f} : ${map[f].display}`).join('\n');
-      if (reductions.length) outText += '\n\n※ 감산 적용:\n' + reductions.join(', ');
-      if (noReduce.length) outText += '\n\n※ 감산 제외:\n' + noReduce.join(', ');
-      outText += '\n\n[복사결과]\n' + disp.map(f => `${f}:${map[f].nick.replace(/[^가-힣A-Za-z0-9]/g,'')}`).join(', ');
-      document.getElementById('btn-copy').disabled = false;
-      return outText;
-    }
+      });
 
-    const inp = document.getElementById('input'), out = document.getElementById('output');
-    document.getElementById('btn-assign').onclick = () => { out.value = processInput(inp.value); };
-    document.getElementById('btn-clear').onclick = () => { inp.value = ''; out.value = ''; document.getElementById('btn-copy').disabled = true; };
-    document.getElementById('btn-copy').onclick = () => { const m = out.value.match(/\[복사결과\]\n([\s\S]*)$/); if (m) navigator.clipboard.writeText(m[1].trim()).then(() => alert('복사되었습니다:\n' + m[1].trim())); };
-  });
+      // Parsing & Assignment Logic
+      const jobMap = {
+        보마:'보우마스터', 신궁:'신궁', 보우마스터:'보우마스터',
+        렌:'레인저', 렌져:'레인저', 레인져:'레인저', 렝거:'레인저', 레인저:'레인저',
+        저격:'저격수', 저수:'저격수', 저격수:'저격수', 허밋:'허밋', 표도:'허밋', 허:'허밋',
+        나로:'나이트로드', 나이트로드:'나이트로드', 용:'용기사', 용기사:'용기사',
+        크루:'크루세이더', 크루세이더:'크루세이더', 시프:'시프마스터', 시프마스터:'시프마스터', 시마:'시프마스터',
+        다크나이트:'다크나이트', 닼나:'다크나이트', 혀로:'히어로', 히어로:'히어로', 섀도어:'섀도어'
+      };
+      const conv = { 나이트로드:550, 허밋:500, 저격수:-150, 신궁:-150 };
+
+      function parseLine(line) {
+        let txt = line.replace(/^\d+\s*(?:\.\s*)?/, '').replace(/[\[\]():]/g, '/').trim();
+        const parts = txt.split(/[\/\s]+/).filter(Boolean);
+        let lvlRaw = '', atkRaw = '', buffTag = '', jobRaw = '', nick = [];
+        parts.forEach(tk => {
+          if (/^\d{4,}\+*(?:메업|메업M|메소업|메소업M)$/i.test(tk)) {
+            if (!atkRaw) atkRaw = tk.match(/^(\d{4,}\+*)/)[1];
+            return;
+          }
+          if (/^메용$/i.test(tk)) { buffTag = '메용'; return; }
+          const mMe = tk.match(/^(\d{4,}\+*)\(메용\)$/i);
+          if (mMe) { if (!atkRaw) atkRaw = mMe[1]; buffTag = '메용'; return; }
+          if (!lvlRaw && /^\d{2,3}n?$/i.test(tk)) { lvlRaw = tk; return; }
+          if (!atkRaw && /^\d{4,}\+*$/.test(tk)) { atkRaw = tk; return; }
+          const norm = jobMap[tk.toLowerCase()];
+          if (!jobRaw && norm) { jobRaw = norm; return; }
+          nick.push(tk);
+        });
+        if (!atkRaw && ['보우마스터','신궁'].includes(jobRaw)) atkRaw = '9999+';
+        if (!lvlRaw) lvlRaw = '?';
+        if (!jobRaw) jobRaw = '보우마스터';
+        if (!nick.length || !atkRaw) throw new Error('필수 필드 누락');
+        return { nick: nick.join(' '), lvlRaw, jobRaw, atkRaw, buffTag };
+      }
+
+      function processInput(text) {
+        const lines = text.split('\n').map(l => l.trim());
+        let players = [], errors = [], reductions = [], noReduce = [];
+
+        lines.forEach(line => {
+          if (!/^\d+\./.test(line)) return;
+          let useLine = line;
+          const idx = parseInt(line, 10);
+          if (idx === 1 && !line.includes('/')) {
+            const lvlM = line.match(/(\d{2,3}n?)/i);
+            const atkM = line.match(/(\d{4,}\+*)/);
+            useLine = `1. 선장/${lvlM ? lvlM[1] : '?'}/보우마스터/${atkM ? atkM[1] : ''}`;
+          }
+          try {
+            const { nick, lvlRaw, jobRaw, atkRaw, buffTag } = parseLine(useLine);
+            const rawAtk = parseInt(atkRaw, 10);
+            let lvl = parseInt(lvlRaw) || 97;
+            let unknown = false;
+            if (lvlRaw === '?' || /n$/i.test(lvlRaw)) {
+              unknown = true;
+              lvl = 97;
+              noReduce.push(`${nick}(레벨미확인)`);
+            }
+            if (!unknown && lvl < 92) throw '';
+            let adj = rawAtk;
+            if (buffTag === '메용') {
+              const bef = adj;
+              adj = Math.round(adj / 1.05);
+              reductions.push(`${nick}/${bef}→${adj}(메용 감산)`);
+            }
+            if (!unknown && lvl < 97) {
+              const bef = adj;
+              const pct = (97 - lvl) / 100;
+              adj = Math.round(adj * (1 - pct));
+              reductions.push(`${nick}/${bef}→${adj}(레벨${Math.round(pct * 100)}%)`);
+            }
+            players.push({ nick, lvl, job: jobRaw, adj, comp: adj + (conv[jobRaw] || 0), display: `${nick}/${lvlRaw}/${jobRaw}/${atkRaw}` });
+          } catch (e) {
+            errors.push(line);
+          }
+        });
+
+        if (players.length < 5) {
+          return '배정 실패\n※ 파싱 실패 라인:\n' + errors.join('\n');
+        }
+
+        // Sort by combined power
+        players.sort((a, b) => b.comp - a.comp);
+        const map = {};
+        let rem = [...players];
+
+        // 1) 시프마스터 4층 고정
+        const sh = rem.find(p => p.job === '시프마스터');
+        if (sh) {
+          map['4층'] = sh;
+          rem.splice(rem.indexOf(sh), 1);
+        }
+
+        // 2) 크루세이더·용기사 처리
+        const grp = rem.filter(p => ['크루세이더', '용기사'].includes(p.job))
+                       .sort((a, b) => b.comp - a.comp);
+        if (grp.length === 1) {
+          map['4층'] = grp[0];
+          rem.splice(rem.indexOf(grp[0]), 1);
+        } else if (grp.length >= 2) {
+          map['1층'] = grp[0];
+          map['4층'] = grp[1];
+          rem.splice(rem.indexOf(grp[0]), 1);
+          rem.splice(rem.indexOf(grp[1]), 1);
+        }
+
+        // 3) 나머지 남은 층 순서대로 채우기 (5,3,2,1층)
+        ['5층','3층','2층','1층'].forEach(f => {
+          if (!map[f] && rem.length) {
+            map[f] = rem.shift();
+          }
+        });
+
+        const floors = ['5층','4층','3층','2층','1층'];
+        let out = floors.map(f => `${f} : ${map[f].display}`).join('\n');
+        if (reductions.length) out += '\n\n※ 감산 적용:\n' + reductions.join(', ');
+        if (noReduce.length) out += '\n\n※ 감산 제외:\n' + noReduce.join(', ');
+        out += '\n\n[복사결과]\n' + floors.map(f => `${f}:${map[f].nick.replace(/[^가-힣A-Za-z0-9]/g,'')}`).join(', ');
+
+        return (btnCopy.disabled = false), out;
+      }
+    });
   </script>
 </body>
 </html>
